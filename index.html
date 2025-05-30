@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>البحث عن الرقم التعريفي</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .unique-id-result {
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+            font-size: 28px;
+            font-weight: bold;
+            letter-spacing: 3px;
+            display: none;
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .search-form {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+        
+        .form-group {
+            margin: 25px 0;
+            text-align: right;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #333;
+            font-size: 16px;
+        }
+        
+        input[type="date"], input[type="tel"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+            background: white;
+        }
+        
+        input[type="date"]:focus, input[type="tel"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .search-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 25px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            width: 100%;
+        }
+        
+        .search-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .search-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .copy-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 15px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .copy-btn:hover {
+            background: #218838;
+            transform: translateY(-1px);
+        }
+        
+        .message {
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-weight: 500;
+        }
+        
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            color: #667eea;
+            font-size: 16px;
+            margin: 20px 0;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 15px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        
+        .instructions {
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: right;
+            border-right: 4px solid #2196f3;
+        }
+        
+        .instructions h3 {
+            color: #1976d2;
+            margin-top: 0;
+        }
+        
+        .instructions ul {
+            margin: 10px 0;
+            padding-right: 20px;
+        }
+        
+        .instructions li {
+            margin: 8px 0;
+            color: #333;
+        }
+        
+        .reset-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 15px;
+            margin-right: 10px;
+            font-size: 14px;
+        }
+        
+        .reset-btn:hover {
+            background: #5a6268;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>البحث عن الرقم التعريفي</h1>
+        <p class="subtitle">أدخل تاريخ الميلاد ورقم تليفون ولي الأمر للعثور على رقمك التعريفي</p>
+        
+        <div class="instructions">
+            <h3>تعليمات البحث:</h3>
+            <ul>
+                <li>أدخل تاريخ الميلاد كما هو مسجل في النموذج</li>
+                <li>أدخل رقم تليفون ولي الأمر كما هو مسجل (يجب أن يبدأ بـ 01)</li>
+                <li>تأكد من صحة البيانات قبل الضغط على "بحث"</li>
+            </ul>
+        </div>
+        
+        <div class="search-form" id="searchFormContainer">
+            <form id="searchForm">
+                <div class="form-group">
+                    <label for="birthdate">تاريخ الميلاد:</label>
+                    <input type="date" id="birthdate" name="birthdate" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="parentPhone">رقم تليفون ولي الأمر:</label>
+                    <input type="tel" id="parentPhone" name="parentPhone" placeholder="01xxxxxxxxx" required>
+                </div>
+                
+                <button type="submit" class="search-btn" id="searchBtn">
+                    🔍 البحث عن الرقم التعريفي
+                </button>
+            </form>
+        </div>
+        
+        <div class="loading" id="loadingMessage">
+            <div class="spinner"></div>
+            <p>جارٍ البحث...</p>
+        </div>
+        
+        <div class="unique-id-result" id="uniqueIdResult">
+            <div>رقمك التعريفي هو:</div>
+            <div id="foundId" style="font-size: 36px; margin: 10px 0;"></div>
+            <button class="copy-btn" onclick="copyId()">📋 نسخ الرقم</button>
+            <button class="reset-btn" onclick="resetSearch()">🔄 بحث جديد</button>
+        </div>
+        
+        <div class="message" id="messageContainer" style="display: none;"></div>
+    </div>
+
+    <script>
+        let foundUniqueId = '';
+        
+        // Replace with your Google Apps Script Web App URL
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyucAvsmEWZ8msQRknl3ZScFvwVELkQzk-JdvxWzzfZ4x5figFKNgEKKTCTRcy4MqNQdg/exec';
+        
+        // Handle form submission
+        document.getElementById('searchForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            searchForId();
+        });
+        
+        function searchForId() {
+            const birthdate = document.getElementById('birthdate').value;
+            const parentPhone = document.getElementById('parentPhone').value;
+            
+            // Validate inputs
+            if (!birthdate || !parentPhone) {
+                showMessage('يرجى إدخال جميع البيانات المطلوبة', 'error');
+                return;
+            }
+            
+            // Validate phone number format
+            const phoneRegex = /^01[0-9]{9}$/;
+            if (!phoneRegex.test(parentPhone)) {
+                showMessage('يرجى إدخال رقم تليفون صحيح (11 رقم يبدأ بـ 01)', 'error');
+                return;
+            }
+            
+            // Show loading
+            showLoading(true);
+            hideMessage();
+            
+            // Prepare search data
+            const searchData = {
+                birthdate: birthdate,
+                parentPhone: parentPhone
+            };
+            
+            // Send search request
+            fetch(SCRIPT_URL, {
+                method: 'POST',
+                mode: 'cors',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(searchData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                showLoading(false);
+                
+                if (data.success) {
+                    // ID found
+                    foundUniqueId = data.uniqueId;
+                    document.getElementById('foundId').textContent = foundUniqueId;
+                    document.getElementById('uniqueIdResult').style.display = 'block';
+                    document.getElementById('searchFormContainer').style.display = 'none';
+                    showMessage(data.message, 'success');
+                } else {
+                    // ID not found
+                    showMessage(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                showLoading(false);
+                console.error('Search error:', error);
+                showMessage('حدث خطأ أثناء البحث. يرجى المحاولة مرة أخرى - An error occurred during search. Please try again.', 'error');
+            });
+        }
+        
+        function showLoading(show) {
+            const loadingElement = document.getElementById('loadingMessage');
+            const searchBtn = document.getElementById('searchBtn');
+            
+            if (show) {
+                loadingElement.style.display = 'block';
+                searchBtn.disabled = true;
+                searchBtn.textContent = 'جارٍ البحث...';
+            } else {
+                loadingElement.style.display = 'none';
+                searchBtn.disabled = false;
+                searchBtn.innerHTML = '🔍 البحث عن الرقم التعريفي';
+            }
+        }
+        
+        function showMessage(message, type) {
+            const messageContainer = document.getElementById('messageContainer');
+            messageContainer.textContent = message;
+            messageContainer.className = 'message ' + (type === 'error' ? 'error-message' : 'success-message');
+            messageContainer.style.display = 'block';
+            
+            // Auto-hide success messages after 5 seconds
+            if (type === 'success') {
+                setTimeout(() => {
+                    hideMessage();
+                }, 5000);
+            }
+        }
+        
+        function hideMessage() {
+            document.getElementById('messageContainer').style.display = 'none';
+        }
+        
+        function copyId() {
+            if (foundUniqueId) {
+                navigator.clipboard.writeText(foundUniqueId).then(() => {
+                    const btn = event.target;
+                    const originalText = btn.textContent;
+                    btn.textContent = '✅ تم النسخ!';
+                    btn.style.background = '#28a745';
+                    
+                    setTimeout(() => {
+                        btn.textContent = originalText;
+                        btn.style.background = '#28a745';
+                    }, 2000);
+                }).catch(() => {
+                    // Fallback for older browsers
+                    const textArea = document.createElement('textarea');
+                    textArea.value = foundUniqueId;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    
+                    showMessage('تم نسخ الرقم التعريفي', 'success');
+                });
+            }
+        }
+        
+        function resetSearch() {
+            // Reset form
+            document.getElementById('searchForm').reset();
+            
+            // Hide result and show form
+            document.getElementById('uniqueIdResult').style.display = 'none';
+            document.getElementById('searchFormContainer').style.display = 'block';
+            
+            // Clear variables
+            foundUniqueId = '';
+            hideMessage();
+        }
+        
+        // Initialize page
+        window.onload = function() {
+            // Focus on first input
+            document.getElementById('birthdate').focus();
+            
+            // Set max date to today for birth date
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('birthdate').setAttribute('max', today);
+        };
+    </script>
+</body>
+</html>
