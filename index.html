@@ -319,7 +319,12 @@
                 },
                 body: JSON.stringify(searchData)
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
             .then(data => {
                 showLoading(false);
                 
@@ -332,13 +337,21 @@
                     showMessage(data.message, 'success');
                 } else {
                     // ID not found
-                    showMessage(data.message, 'error');
+                    showMessage(data.message || 'لم يتم العثور على الرقم التعريفي', 'error');
                 }
             })
             .catch(error => {
                 showLoading(false);
                 console.error('Search error:', error);
-                showMessage('حدث خطأ أثناء البحث. يرجى المحاولة مرة أخرى - An error occurred during search. Please try again.', 'error');
+                
+                // More specific error messages
+                if (error.message.includes('Failed to fetch')) {
+                    showMessage('خطأ في الاتصال بالخادم. تحقق من اتصال الإنترنت - Connection error. Check internet connection.', 'error');
+                } else if (error.message.includes('CORS')) {
+                    showMessage('خطأ في إعدادات الخادم. يرجى التواصل مع المسؤول - Server configuration error.', 'error');
+                } else {
+                    showMessage('حدث خطأ أثناء البحث: ' + error.message, 'error');
+                }
             });
         }
         
